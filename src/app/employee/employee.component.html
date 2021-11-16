@@ -1,0 +1,212 @@
+<div class="container">
+
+    <mat-card class="mat-elevation-z8">
+        <mat-toolbar color="accent" style="padding:10px;box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);">
+            <div align="center" style="text-align: right;">
+                Employees CRUD using : Angular 12 with Web API
+
+            </div>
+        </mat-toolbar>
+        <br><br>
+        <mat-card-content>
+            <form [formGroup]="employeeForm" (ngSubmit)="onFormSubmit()">
+                <table>
+                    <tr>
+                        <td class="tbl1">
+                            <mat-form-field class="demo-full-width">
+                                <input formControlName="employeeName" matTooltip="Enter Employee employeeName" matInput placeholder="employeeName" autocomplete="off">
+                            </mat-form-field>
+                            <mat-error>
+                                <span *ngIf="!employeeForm.get('employeeName').value && employeeForm.get('employeeName').touched"></span>
+                            </mat-error>
+                        </td>
+                        <td class="tbl1">
+                            <mat-form-field class="demo-full-width">
+                                <input formControlName="employeeTitle" matTooltip="Enter Employee employeeTitle" matInput placeholder="employeeTitle" autocomplete="off">
+                            </mat-form-field>
+                            <mat-error>
+                                <span *ngIf="!employeeForm.get('employeeTitle').value && employeeForm.get('employeeTitle').touched"></span>
+                            </mat-error>
+                        </td>
+                        <td class="tbl1">
+                            <mat-form-field class="demo-full-width">
+                                <input matInput [matDatepicker]="picker" matTooltip="Enter Date Of Birth" formControlName="employeeBirthDate" placeholder="Date Of Birth" autocomplete="off">
+                                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                            </mat-form-field>
+                            <mat-error>
+                                <span *ngIf="!employeeForm.get('employeeBirthDate').value && employeeForm.get('employeeBirthDate').touched"></span>
+                            </mat-error>
+                        </td>
+                        <td class="tbl1">
+                            <mat-form-field class="demo-full-width">
+                                <input matInput [matDatepicker]="picker2" matTooltip="Enter Date Of Hiring" formControlName="employeeHiringDate" placeholder="Date Of Hiring" autocomplete="off">
+                                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                                <mat-datepicker #picker2></mat-datepicker>
+                            </mat-form-field>
+                            <mat-error>
+                                <span *ngIf="!employeeForm.get('employeeHiringDate').value && employeeForm.get('employeeHiringDate').touched"></span>
+                            </mat-error>
+                        </td>
+                        <td class="tbl1">
+                            <mat-form-field class="demo-full-width">
+                                <input formControlName="departmentName" matTooltip="Enter departmentName" matInput placeholder="department" autocomplete="off">
+                            </mat-form-field>
+                            <mat-error>
+                                <span *ngIf="!employeeForm.get('departmentName').value && employeeForm.get('departmentName').touched"></span>
+                            </mat-error>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td class="tbl1">
+                            <mat-form-field>
+                                <mat-label>department</mat-label>
+                                <mat-select formControlName="departmentId" matTooltip="Select department" autocomplete="off">
+                                    <mat-option *ngFor="let department of (alldepartment)" [value]="department.departmentId">
+                                        {{department.departmentName}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="content-center">
+                            <!-- <button type="submit" mat-raised-button color="accent" matTooltip="Submit" [disabled]="!employeeForm.valid">Submit</button>&nbsp;&nbsp;&nbsp;&nbsp; -->
+                            <button type="submit" mat-raised-button color="accent" matTooltip="Submit">Submit</button>&nbsp;&nbsp;&nbsp;&nbsp;
+                            <button type="reset" mat-raised-button color="accent" matTooltip="Reset" (click)="resetForm()">Reset</button>
+                        </td>
+                        <td>
+                            <p *ngIf="dataSaved" style="color:rgb(0, 128, 0);font-size:20px;font-weight:bold" Class="success" align="left">
+                                {{massage}}
+                            </p>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </table>
+                <br><br>
+
+
+
+                <!--<mat-form-field>
+
+        </mat-form-field>-->
+
+                <mat-form-field>
+                    <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+                </mat-form-field>
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <button mat-icon-button aria-label="Example icon button with a delete icon" type="button" mat-raised-button color="accent" matTooltip="Delete" (click)="DeleteData()"><mat-icon>delete</mat-icon></button>
+
+                <div>
+
+                    <mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8" style="box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12);">
+
+                        <!-- Checkbox Column -->
+                        <ng-container matColumnDef="select">
+                            <mat-header-cell *matHeaderCellDef>
+                                <mat-checkbox (change)="$event ? masterToggle() : null" [checked]="selection.hasValue() && isAllSelected()" [indeterminate]="selection.hasValue() && !isAllSelected()"></mat-checkbox>
+                            </mat-header-cell>
+                            <mat-cell *matCellDef="let row">
+                                <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)"></mat-checkbox>
+                            </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="employeeName">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header>Name </mat-header-cell>
+                            <mat-cell *matCellDef="let employee"> {{employee.employeeName}} </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="employeeTitle">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header> Title </mat-header-cell>
+                            <mat-cell *matCellDef="let employee"> {{employee.employeeTitle}} </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="employeeBirthDate">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header> Date Of Birth </mat-header-cell>
+                            <mat-cell *matCellDef="let employee"> {{employee.employeeBirthDate | date:'dd-MM-yyyy'}}</mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="employeeHiringDate">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header> Date Of Hiring </mat-header-cell>
+                            <mat-cell *matCellDef="let employee"> {{employee.employeeHiringDate | date:'dd-MM-yyyy'}}</mat-cell>
+                        </ng-container>
+
+                        <!-- <ng-container matColumnDef="departmentId">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header> department </mat-header-cell>
+                            <mat-cell *matCellDef="let employee"> {{employee.departmentId}} </mat-cell>
+                        </ng-container> -->
+
+                        <ng-container matColumnDef="departmentName">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header> department </mat-header-cell>
+                            <mat-cell *matCellDef="let employee"> {{employee.departmentName}} </mat-cell>
+                        </ng-container>
+
+                        <!-- <ng-container matColumnDef="department">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header> department </mat-header-cell>
+                            <mat-cell *matCellDef="let employee"> {{employee.departmentId}} </mat-cell>
+                        </ng-container> -->
+
+                        <ng-container matColumnDef="Edit">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header> Edit </mat-header-cell>
+
+                            <mat-cell *matCellDef="let employee">
+
+                                <button mat-icon-button aria-label="Example icon button with a vertical three dot icon" type="button" mat-raised-button color="accent" matTooltip="Edit" (click)="loadEmployeeToEdit(employee.employeeId)"><mat-icon>edit</mat-icon></button>
+                                <!--<button mat-icon-button aria-label="Example icon button with a vertical three dot icon" color="accent" matTooltip="Edit" (click)="loadEmployeeToEdit(employee.EmpId)">
+                  <mat-icon>more_vert</mat-icon>
+                </button>-->
+                            </mat-cell>
+                        </ng-container>
+
+                        <ng-container matColumnDef="Delete">
+                            <mat-header-cell *matHeaderCellDef mat-sort-header> Delete </mat-header-cell>
+                            <mat-cell *matCellDef="let employee"> <button mat-icon-button aria-label="Example icon button with a delete icon" type="button" mat-raised-button color="accent" matTooltip="Delete" (click)="deleteEmployee(employee.employeeId)"><mat-icon>delete_forever</mat-icon></button></mat-cell>
+                        </ng-container>
+
+                        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                    </mat-table>
+
+                    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+                </div>
+
+                <!--<table mat-table class="table">
+          <tr color="accent">
+            <th class="tbl2">First Name</th>
+            <th class="tbl2">Last Name</th>
+            <th class="tbl2">Date Of Birth</th>
+            <th class="tbl2">Email Id</th>
+            <th class="tbl2">Gender</th>
+            <th class="tbl2">Country</th>
+            <th class="tbl2">State</th>
+            <th class="tbl2">City</th>
+            <th class="tbl2">Address</th>
+            <th class="tbl2">Pincode</th>
+            <th class="tbl2">Edit</th>
+            <th class="tbl2">Delete</th>
+          </tr>
+          <tr *ngFor="let employee of allEmployees | async">
+            <td class="tbl2">{{employee.employeeName}}</td>
+            <td class="tbl2">{{employee.employeeTitle}}</td>
+            <td class="tbl2">{{employee.employeeBirthDate | date }}</td>
+            <td class="tbl2">{{employee.departmentName}}</td>
+            <td class="tbl2">{{employee.Gender ==0? 'Male' : 'Female'}}</td>
+            <td class="tbl2">{{employee.Country}}</td>
+            <td class="tbl2">{{employee.State}}</td>
+            <td class="tbl2">{{employee.City}}</td>
+            <td class="tbl2">{{employee.Address}}</td>
+            <td class="tbl2">{{employee.Pincode}}</td>
+            <td class="tbl2">
+              <button type="button" mat-raised-button color="accent" matTooltip="Edit" (click)="loadEmployeeToEdit(employee.EmpId)">Edit</button>
+            </td>
+            <td class="tbl2">
+              <button type="button" mat-raised-button color="accent" matTooltip="Delete" (click)="deleteEmployee(employee.EmpId)">Delete</button>
+            </td>
+          </tr>
+        </table>-->
+            </form>
+        </mat-card-content>
+    </mat-card>
+</div>
